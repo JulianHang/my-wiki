@@ -25,3 +25,14 @@ def func():
 func()
 print(num)
 ```
+
+如果是可变类型的话, 直接使用内置的方法进行修改元素, 无需加`global`
+```python
+g_list = []
+
+def add_data():
+    for i in range(3):
+        g_list.append(i)
+
+add_data()
+```
