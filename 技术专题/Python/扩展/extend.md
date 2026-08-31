@@ -154,3 +154,28 @@ with MyContext() as value:
 4. 执行 with 内部的代码。
 5. 离开代码块时，Python调用 __exit__()。
 即使代码块发生异常，__exit__() 也会执行
+
+
+# 生成器表达式
+```python
+if any(word in user_input for word in ["历史", "古迹", "文物", "古城", "博物馆"]):
+```
+执行过程如下：
+1. for word in [...] 会依次取出关键词
+    "历史"
+    "古迹"
+    "文物"
+    "古城"
+    "博物馆"
+2. word in user_input 判断关键词是否存在于字符串中，例如："历史" in "我喜欢历史建筑"
+3. any() 判断其中是否至少有一个结果为 True
+4. any() 会造成短路，其中一个为True的话就会直接返回
+
+# list
+列表拼接
+```python
+list = [1, 3]
+list2 = [2]
+print(list + list2)
+
+```

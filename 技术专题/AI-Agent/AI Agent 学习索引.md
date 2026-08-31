@@ -15,3 +15,10 @@
 ## 推荐阅读顺序
 
 1. Hello-Agents
+2. Learn Claude Code
+3. Claude HowTo
+
+## 待学习
+
+### 框架
+LangGraph
