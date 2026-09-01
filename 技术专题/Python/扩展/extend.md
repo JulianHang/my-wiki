@@ -69,7 +69,8 @@ print(i)
 
 ## range
 ```markdown
-   range
+
+range
 @overload
 def __new__(cls,
             stop: SupportsIndex,
@@ -102,6 +103,12 @@ range(stop: SupportsIndex, /)
 range(start: SupportsIndex, stop: SupportsIndex, /)
 range(start: SupportsIndex, stop: SupportsIndex, step: SupportsIndex, /)
 ```
+
+## callable
+```python
+def registerTool(self, name: str, description: str, func: callable):
+```
+callable 表示"可调用对象"，也就是可以在后面加 () 执行的对象，常见的可调用对象包括普通函数、lambda、类、实现了`__call__`的对象、实例方法
 
 
 ## math.sqrt
@@ -179,3 +186,7 @@ list2 = [2]
 print(list + list2)
 
 ```
+
+
+# 方法前加一个下划线
+Python 中，方法名前加一个下划线 _，通常表示：这是类或模块内部使用的方法，不建议外部直接调用，未来可能会调整该方法的内容。
