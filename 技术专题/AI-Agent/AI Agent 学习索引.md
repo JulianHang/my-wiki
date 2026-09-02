@@ -15,11 +15,13 @@
 ## 推荐阅读顺序
 
 1. Hello-Agents
-2. Learn Claude Code
+2. Learn Claude Code（自己手搓代码）
 3. Claude HowTo
+4. 
 
 ## 待学习
-harness
+function-calling
+Agent-Learning-Hub - https://github.com/datawhalechina/Agent-Learning-Hub
 
 ### 框架
 LangGraph

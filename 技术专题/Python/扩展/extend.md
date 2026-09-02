@@ -190,3 +190,27 @@ print(list + list2)
 
 # 方法前加一个下划线
 Python 中，方法名前加一个下划线 _，通常表示：这是类或模块内部使用的方法，不建议外部直接调用，未来可能会调整该方法的内容。
+
+
+# match...case语法
+
+```python
+score = 85
+
+match score:
+    case value if value >= 90:
+        print("优秀")
+    case value if value >= 60:
+        print("及格")
+    case _:
+        print("不及格")
+```
+case _：相当于其他语言中的 default 或 SQL 的 ELSE
+
+
+# assert断言
+```python
+age = -1
+assert age >= 0, "年龄不能小于 0"
+```
+如果条件为 True，程序继续执行；如果条件为 False，抛出 AssertionError，或者是指定错误提示
