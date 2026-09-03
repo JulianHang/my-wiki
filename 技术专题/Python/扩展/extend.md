@@ -123,12 +123,31 @@ SupportsFloat | SupportsIndex -> 支持转换为浮点数，或者支持整数�
 
 float -> 表示返回值类型
 
+## Required
+```python
+role: Required[Literal["user", "assistant", "system"]]
+```
+role：字段名
+Required[...]：这个字段必须存在
+Literal[...]：字段值只能是列出的固定字符串之一
+因此 role 只能取："user"、"assistant"、"system"
+
+## Omit = omit
+```python
+tool_choice: ToolChoiceAutoParam | None | Omit = omit
+```
+Omit = omit：如果调用者不传这个参数，默认值就是 omit
+
 
 ## multiprocessing
 ```markdown
 self, group: None = None, target, name, args, kwargs, *, daemon
 ```
 group: None = None -> 有默认值
+
+
+## if isinstance(response_content, list) 和 if isinstance(response_content, List) 有区别吗？
+有区别，而且应该使用小写的list，typing.List 主要用于类型标注，不用于运行时类型判断
 
 
 # 上下文管理器
@@ -214,3 +233,19 @@ age = -1
 assert age >= 0, "年龄不能小于 0"
 ```
 如果条件为 True，程序继续执行；如果条件为 False，抛出 AssertionError，或者是指定错误提示
+
+
+# getattr
+getattr是 Python 的内置函数，不需要导入
+```python
+class User:
+    name = "张三"
+
+user = User()
+
+print(user.name)
+print(getattr(user, "name"))
+# 当属性不存在时设置None, 否则会抛出错误
+print(getattr(user, "name", None))
+```
+如果不提供默认值，属性不存在时会抛出：AttributeError
