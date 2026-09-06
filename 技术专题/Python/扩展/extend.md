@@ -249,3 +249,19 @@ print(getattr(user, "name"))
 print(getattr(user, "name", None))
 ```
 如果不提供默认值，属性不存在时会抛出：AttributeError
+
+
+# 三目（三元）表达式
+```python
+"allow" if choice in ("y", "yes") else "deny"
+```
+等同于
+```python
+if choice in ("y", "yes"):
+    result = "allow"
+else:
+    result = "deny"
+```
+
+# 类型标注
+就是声明字段的类型，推荐使用小写的内置 list，尤其是 Python 3.9 及以上，使用List是比较早的版本
