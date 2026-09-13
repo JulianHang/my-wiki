@@ -16,8 +16,9 @@
 
 1. Hello-Agents
 2. Learn Claude Code（自己手搓代码）
-3. Claude HowTo
-4. 
+3. PI???
+4. Claude HowTo
+5. 
 
 ## 待学习
 function-calling

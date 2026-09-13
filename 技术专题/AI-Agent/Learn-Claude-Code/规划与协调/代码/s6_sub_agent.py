@@ -1,6 +1,8 @@
 import re
 import os
+import json
 import subprocess
+import ast
 from dotenv import load_dotenv
 from anthropic import Anthropic
 from typing import List, Dict, Any
@@ -14,7 +16,7 @@ name、description、input_schema 是Claude Code API声明工具的固定格式
 input_schema内部的格式是标准的JSON Schema的格式，不是固定的
 """
 
-TOOLS = [
+BASE_TOOLS = [
     {
         "name": "bash",
         "description": "Run a shell command.",
@@ -107,12 +109,28 @@ TOOLS = [
     }
 ]
 
+# 子agent
+TASK_TOOL = {
+    "name": "task",
+    "description": "Run a subagent with fresh conversation context and return its final text.",
+    "input_schema": {
+        "type": "object",
+        "properties": {"prompt": {"type": "string", "minLength": 1}},
+        "required": ["prompt"],
+    },
+}
+
 
 
 WORKDIR = Path.cwd()
 
 
-SYSTEM=f"你是 {WORKDIR} 的一名编码代理。使用 bash 完成任务。行动起来，无需解释。"
+SYSTEM=f"您是 {WORKDIR} 的一名编码员。在开始任何多步骤任务之前，请使用 todo_write 来规划您的步骤。并在执行过程中随时更新状态。"
+
+SUB_SYSTEM = (
+    f"You are a coding agent at {WORKDIR}. "
+    "Complete the given task, then return a concise final answer."
+)
 
 class ClaudeCodeLLM:
 
@@ -244,27 +262,215 @@ def ask_user(tool_name: str, args: dict, reason: str) -> str:
     choice = input("   Allow? [y/N] ").strip().lower()
     return "allow" if choice in ("y", "yes") else "deny"
 
+
 # 权限校验
-def check_permission(block) -> bool:
-    # 闸门 1: 硬拒绝
+def permission_hook(block):
+    """PreToolUse: s03 check_permission() logic moved here."""
     if block.name == "bash":
-        reason = check_deny_list(block.input.get("command", ""))
-        if reason:
-            print(f"\n⛔ {reason}")
-            return False
+        command = block.input.get("command", "")
+        for pattern in DENY_LIST:
+            if pattern in command:
+                print(f"\n\033[31m[blocked] '{pattern}'\033[0m")
+                return "Permission denied by deny list"
+        if contains_destructive_command(command) or any(
+            kw in command for kw in DESTRUCTIVE
+        ):
+            print(f"\n\033[33m[permission] Potentially destructive command\033[0m")
+            print(f"   Tool: {block.name}({block.input})")
+            choice = input("   Allow? [y/N] ").strip().lower()
+            if choice not in ("y", "yes"):
+                return "Permission denied by user"
+    if block.name in ("read_file", "write_file", "edit_file"):
+        path = block.input.get("path", "")
+        if not (WORKDIR / path).resolve().is_relative_to(WORKDIR):
+            print(f"\n\033[33m[permission] Access outside workspace\033[0m")
+            print(f"   Tool: {block.name}({block.input})")
+            choice = input("   Allow? [y/N] ").strip().lower()
+            if choice not in ("y", "yes"):
+                return "Permission denied by user"
+    return None
 
-    # 闸门 2 + 3: 规则匹配 → 用户审批
-    reason = check_rules(block.name, block.input)
-    if reason:
-        decision = ask_user(block.name, block.input, reason)
-        if decision == "deny":
-            return False
 
-    return True
+# 注册钩子
+def register_hook(evnet: str, callback):
+    HOOKS[evnet].append(callback)
+
+# 执行钩子
+def trigger_hooks(event: str, *args):
+    for callback in HOOKS[event]:
+         result = callback(*args)
+         if result is not None:
+             return result
+    return None
+
+# 钩子函数
+def log_hook(block):
+    """PreToolUse: log every tool call."""
+    args_preview = str(list(block.input.values())[:2])[:60]
+    print(f"\033[90m[HOOK] {block.name}({args_preview})\033[0m")
+    return None
+
+# 钩子函数
+def large_output_hook(block, output):
+    """PostToolUse: warn on large output."""
+    if len(str(output)) > 100000:
+        print(f"\033[33m[HOOK] Large output from {block.name}: {len(str(output))} chars\033[0m")
+    return None
+
+# 钩子函数
+def context_inject_hook(query: str):
+    print(f"\033[90m[HOOK] UserPromptSubmit: working in {WORKDIR}\033[0m")
+    return None
 
 
+def summary_hook(messages: list):
+    tool_count = sum(1 for m in messages
+                     for b in (m.get("content") if isinstance(m.get("content"), list) else [])
+                     if isinstance(b, dict) and b.get("type") == "tool_result")
+    print(f"\033[90m[HOOK] Stop: session used {tool_count} tool calls\033[0m")
+    return None
 
-def agent_loop(messages: List[Dict[str, Any]], system: str, tools: List[Dict[str, Any]]) -> List:
+
+class TodoManager:
+    def __init__(self):
+        self.items: list[dict] = []
+
+
+    def update(self, todos: list | str) -> str:
+        if isinstance(todos, str):
+            try:
+                todos = json.loads(todos)
+            except json.JSONDecodeError:
+                try:
+                    todos = ast.literal_eval(todos)
+                except (SyntaxError, ValueError) as e:
+                    raise ValueError("todos must be a list or JSON array string") from e
+
+        if not isinstance(todos, list):
+            raise ValueError("todos must be a list")
+        if len(todos) > 20:
+            raise ValueError("Max 20 todos allowed")
+
+        # 提取信息
+        validated = []
+        in_progress_count = 0
+        for index, todo in enumerate(todos):
+            if not isinstance(todo, dict):
+                raise ValueError(f"todos[{index}] must be an object")
+
+            content = str(todo.get("content", "")).strip()
+            status = str(todo.get("status", "pending")).lower()
+            if not content:
+                raise ValueError(f"todos[{index}] requires content")
+            if status not in ("pending", "in_progress", "completed"):
+                raise ValueError(f"todos[{index}] has invalid status '{status}'")
+            if status == "in_progress":
+                in_progress_count += 1
+            validated.append({"content": content, "status": status})
+
+        if in_progress_count > 1:
+            raise ValueError("Only one todo can be in_progress at a time")
+
+        self.items = validated
+        return self.render()
+
+        self.items = validated
+        return self.render()
+
+    # 返回进度信息
+    def render(self) -> str:
+        if not self.items:
+            return "No todos."
+
+        lines = []
+        for todo in self.items:
+            marker = {
+                "pending": "[ ]",
+                "in_progress": "[>]",
+                "completed": "[x]",
+            }[todo["status"]]
+            lines.append(f"{marker} {todo['content']}")
+
+        done = sum(todo["status"] == "completed" for todo in self.items)
+        lines.append(f"\n({done}/{len(self.items)} completed)")
+        return "\n".join(lines)
+
+
+# 执行进度更新
+def run_todo_write(todos: list | str) -> str:
+    try:
+        output = TODO.update(todos)
+    except ValueError as e:
+        return f"Error: {e}"
+    print(f"\n\033[33m## Current Tasks\033[0m\n{output}")
+    return output
+
+# 执行工具
+def execute_tool(block, handlers: dict) -> str:
+    blocked = trigger_hooks("PreToolUse", block)
+    if blocked:
+        return str(blocked)
+
+    handler = handlers.get(block.name)
+    try:
+        output = handler(**block.input) if handler else f"Unknown: {block.name}"
+    except Exception as e:
+        output = f"Error: {e}"
+
+    trigger_hooks("PostToolUse", block, output)
+    return str(output)
+
+
+def extract_text(content) -> str:
+    if not isinstance(content, list):
+        return str(content)
+    return "\n".join(
+        getattr(block, "text", "")
+        for block in content
+        if getattr(block, "type", None) == "text"
+    )
+
+# 子-agent执行逻辑
+def run_subagent(prompt: str) -> str:
+    print("\n\033[35m[Subagent started]\033[0m")
+    messages = [{"role": "user", "content": prompt}]
+
+    sub_client = ClaudeCodeLLM()
+
+    for _ in range(30):
+        content = sub_client.think(messages, SUB_SYSTEM, SUB_TOOLS, 8000)
+
+        messages.append({"role": "assistant", "content": content})
+
+        tool_calls = [
+            block for block in content if block.type == "tool_use"
+        ]
+        if not tool_calls:
+            force = trigger_hooks("Stop", messages)
+            if force:
+                messages.append({"role": "user", "content": force})
+                continue
+            print("\033[35m[Subagent done]\033[0m")
+            return extract_text(content) or "(no summary)"
+
+        results = []
+        for block in tool_calls:
+            output = execute_tool(block, SUB_HANDLERS)
+            print(f"  \033[90m[sub] {block.name}: {output[:100]}\033[0m")
+            results.append({
+                "type": "tool_result",
+                "tool_use_id": block.id,
+                "content": output,
+            })
+        messages.append({"role": "user", "content": results})
+
+    print("\033[35m[Subagent stopped]\033[0m")
+    return "Subagent stopped after 30 turns without a final answer."
+
+def agent_loop(messages: list, system: str, tools: list) -> list:
+    # 经过LLM对话的轮次
+    rounds_since_todo = 0
+
     while True:
         content = client.think(messages, system, tools)
         if not content:
@@ -274,36 +480,45 @@ def agent_loop(messages: List[Dict[str, Any]], system: str, tools: List[Dict[str
         # 获取工具调用列表
         tool_calls = [block for block in content if block.type == 'tool_use']
         if not tool_calls:
+            force = trigger_hooks("Stop", messages)
+            if force:
+                messages.append({"role": "user", "content": force})
+                continue
             break
 
         # 收集工具执行的结果，将其在反馈给LLM
         results = []
+        # 判断是否有生成待办事项
+        used_todo = False
         for block in tool_calls:
             print(f"\033[33m$ {block.name}\033[0m")
 
-            if not check_permission(block):
-                results.append({"type": "tool_result", "tool_use_id": block.id, "content": "Permission denied."})
-                continue
+            output = execute_tool(block, TOOL_HANDLERS)
 
-            handler = TOOL_HANDLERS.get(block.name)
-            output = handler(**block.input) if handler else f"Unknown: {block.name}"
-            print(str(output)[:200])
             results.append({
                 "type": "tool_result",
                 "tool_use_id": block.id,
                 "content": output,
             })
+
+        # 如果待办事项没生成的话，且多轮LLM对话都没生成的话，就提醒LLM，注入提示语
+        rounds_since_todo = 0 if used_todo else rounds_since_todo + 1
+        if rounds_since_todo >= 3:
+            results.append({"type": "text",
+                            "text": "<reminder>Update your todos.</reminder>"})
+            rounds_since_todo = 0
+
         messages.append({"role": "user", "content": results})
 
     return messages
 
-# 工具名与函数映射
-TOOL_HANDLERS = {
+# 父agent-工具名与函数映射
+BASE_HANDLERS = {
     "bash": run_bash,
     "read_file": run_read,
     "write_file": run_write,
     "edit_file": run_edit,
-    "glob": run_glob,
+    "glob": run_glob
 }
 
 DESTRUCTIVE_COMMAND_WORD = re.compile(
@@ -327,16 +542,39 @@ PERMISSION_RULES = [
      "message": "Potentially destructive command"},
 ]
 
+DESTRUCTIVE = ["rm ", "> /etc/", "chmod 777"]
+
+
+# hook时机点
+HOOKS = {"UserPromptSubmit": [], "PreToolUse": [], "PostToolUse": [], "Stop": []}
+
+
+SUB_TOOLS = list(BASE_TOOLS)
+SUB_HANDLERS = dict(BASE_HANDLERS)
+
+TOOLS = [*BASE_TOOLS, TASK_TOOL]
+TOOL_HANDLERS = {**BASE_HANDLERS, "task": run_subagent}
+
+# 注册钩子
+register_hook("UserPromptSubmit", context_inject_hook)
+register_hook("PreToolUse", permission_hook)
+register_hook("PreToolUse", log_hook)
+register_hook("PostToolUse", large_output_hook)
+register_hook("Stop", summary_hook)
+
+TODO = TodoManager()
 
 client = ClaudeCodeLLM()
 
 if __name__ == '__main__':
-    print("s03: Permission")
+    print("s06: Subagent - fresh messages, final text returns")
     print("Enter a question, press Enter to send. Type q to quit.\n")
 
     # query = input("\001\033[36m\002s01 >> \001\033[0m\002")
-    query = "当前目录下有哪些文件？"
+    query = "使用任务来创建string_tools.py这个文件，并在其中添加一个名为slugify(text: str)的函数。之后，从父代理程序中验证该函数的正确性"
     init_messages = [{"role": "user", "content": query}]
+    # 执行钩子
+    trigger_hooks("UserPromptSubmit", query)
 
     agent_loop(init_messages, SYSTEM, TOOLS)
     response_content = init_messages[-1]["content"]

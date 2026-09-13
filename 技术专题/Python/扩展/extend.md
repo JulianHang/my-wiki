@@ -106,9 +106,10 @@ range(start: SupportsIndex, stop: SupportsIndex, step: SupportsIndex, /)
 
 ## callable
 ```python
-def registerTool(self, name: str, description: str, func: callable):
+def registerTool(self, name: str, description: str, func: callable[[int, str], bool]):
 ```
-callable 表示"可调用对象"，也就是可以在后面加 () 执行的对象，常见的可调用对象包括普通函数、lambda、类、实现了`__call__`的对象、实例方法
+callable 表示"可调用对象"，也就是可以在后面加 () 执行的对象，常见的可调用对象包括普通函数、lambda、类、实现了`__call__`的对象、实例方法。
+参数列表本身也写成 [int, str]，表示该函数接收 int 和 str，返回 bool。
 
 
 ## math.sqrt
@@ -264,4 +265,33 @@ else:
 ```
 
 # 类型标注
-就是声明字段的类型，推荐使用小写的内置 list，尤其是 Python 3.9 及以上，使用List是比较早的版本
+就是声明字段的类型，推荐使用小写的内置 list，尤其是 Python 3.9 及以上，使用List是比较早的版本。容器或泛型通常使用`[]`指定内部类型，如list[int]
+
+# raise
+```python
+raise ValueError("xx") from e
+````
+其中 from e 是为了原始异常。
+
+
+# cls创建实例对象
+```python
+class User:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    @classmethod
+    def from_string(cls, text):
+        name, age = text.split(",")
+        return cls(name, int(age))
+```
+`cls(name, int(age))`  等价于 `User(name, int(age))`，使用cls来创建的话，因为 cls 能正确支持继承
+
+```python
+class Admin(User):
+    pass
+
+admin = Admin.from_string("Bob,30")
+```
+此时类方法中的 cls 是 Admin，所以实际创建的是`Admin("Bob", 30)`
