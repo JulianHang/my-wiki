@@ -28,9 +28,11 @@ Prompt Cache指的是多轮对话中"重复"的Prompt，可以避免多次计算
 - 提示词：固定内容放前面，动态内容放后面
 - 工具列表永远不变
 1. 涉及到状态变化的，可以使用多个工具来实现
-2. OpenAI API的方式：固定工具集 + namespace（可选） + ToolSearch + 延迟加载工具 schema；Claude Code API的方式：工具名和描述 + ToolSearch + 延迟加载工具 schema
-3. 消息追加，不修改已有内容
-4. 单次对话不切换模型，用子代理隔离
+2. OpenAI的方式：固定工具集 + namespace（可选） + ToolSearch + 延迟加载工具 schema；A\的方式：工具名和描述 + ToolSearch + 延迟加载工具 schema
+- 消息追加，不修改已有内容
+- 单次对话不切换模型，用子代理隔离
+
+对于A\来说，在向模型发起问题时携带的tools、system prompt、user prompt，在其服务端形成的缓存结构是tools -> system -> user，其中tools是排在第一位置，所以说tools一旦发生新增或修改，那么整个Prompt Cache都会失效。对于OpenAI来说，当tools发生变动的时候，整个Prompt Cache会不会全部失效，目前还无法下定论。
 
 
 ### 上下文腐烂
@@ -45,6 +47,26 @@ Prompt Cache指的是多轮对话中"重复"的Prompt，可以避免多次计算
 ### 每Token延迟（TPOT）
 生成后续每个token的平均时间，主要由Decode阶段的耗时决定。   
 
+### Claude Code 上下文压缩策略
+上下文窗口大小是有一定上限的，对于历史消息或者是大量的工具调用结果会迅速把上下文撑爆。Claude Code内部有一套上下文压缩策略，保证用户可以执行长时间的任务，以下的策略是通过从上到下依序执行的，比较有争议的是Snip和Microcompact的顺序。
+
+1. 对于工具调用结果过大的场景，只保留前半部分和后半部分结果，中间的就裁掉。
+2. Microcompact 删除旧工具的输出，有两种策略
+   -  Prompt Cache 仍然有效，使用远端缓存逻辑，清除远端旧工具的输出，本地消息保持不变，防止下一轮对话Prompt Cache失效（客户端消息没变）。
+   -  Prompt Cache 已失效，使用本地消息，清除本地旧工具的输出，将内容替换成[Old tool result content cleared]，下一轮将会重新Prompt Cache。
+3. Snip 直接删除最旧的几轮对话。
+4. Context Collapse 把旧对话分成若干段，每段用LLM生成摘要，底层的历史信息还保留着，只是喂给LLM的是压缩后的摘要消息。
+5. Auto Compact 压缩整个对话历史，一次性发给LLM，生成摘要
+6. Reactive Compact LLM API调用失败返回413（prompt too long）重试压缩策略。
+
+
+### 上下文污染
+上下文窗口中混入了无关、错误、过时的信息，导致大模型出现理解偏差，输出质量下降的内容。
+
+### 上下文干扰
+上下文窗口中信息彼此冲突、无关或过多，导致大模型无法正确识别当前任务需要关注的内容。
+
 
 ## 参考文章
-- https://cuiliang.ai/posts/prompt-caching-kv-cache-fundamentals
+- https://cuiliang.ai/archives/
+- https://openprogram.io/docs/reference/claude-code-compaction.zh.html

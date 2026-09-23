@@ -295,3 +295,6 @@ class Admin(User):
 admin = Admin.from_string("Bob,30")
 ```
 此时类方法中的 cls 是 Admin，所以实际创建的是`Admin("Bob", 30)`
+
+# := 
+Python 中的 := 叫海象运算符（walrus operator），用于在表达式中给变量赋值，并同时返回这个值。
