@@ -298,3 +298,75 @@ admin = Admin.from_string("Bob,30")
 
 # := 
 Python 中的 := 叫海象运算符（walrus operator），用于在表达式中给变量赋值，并同时返回这个值。
+
+# yield from
+```python
+def c():
+    yield 1
+    yield 2
+
+def b():
+    yield from c()
+```
+- c 是生成器；
+- b 也是生成器；
+- b 会把 c 产生的值逐个转发出去
+
+等价于
+```python
+def c():
+    yield 1
+    yield 2
+
+def b():
+    for value in c():
+        yield value
+```
+
+
+```python
+def child():
+    yield 1
+    yield 2
+    return "执行完成"
+
+
+def parent():
+    result = yield from child()
+    print("子生成器返回值：", result)
+    yield 3
+
+# 输出：子生成器返回值： 执行完成
+list(parent()) 
+
+# 子生成器返回值： 执行完成
+# [1, 2, 3]
+print(list(parent())) 
+```
+
+yield     # 暂停并向外产生数据
+return    # 结束生成器并携带最终返回值
+yield from # 转发子生成器的数据，并接收子生成器的 return 值
+
+
+# @dataclass
+```python
+from dataclasses import dataclass
+
+@dataclass
+class User:
+    name: str  # 字段通常需要类型注解
+    age: int 
+```
+它会根据字段注解自动生成常用方法，例如：
+- __init__()：初始化对象；
+- __repr__()：方便打印；
+- __eq__()：比较两个对象是否相等
+
+等价于
+```python
+class User:
+    def __init__(self, name: str, age: int):
+        self.name = name
+        self.age = age
+```

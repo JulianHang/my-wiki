@@ -113,12 +113,12 @@ tesla.run()
 class A:
     def show(self):
         print("A")
-        super().show()
+        super().show()  # 调用到 B 类的show方法
 
 class B:
     def show(self):
         print("B")
-        super().show()
+        super().show() # 调用到 Base 类的show方法
 
 class Base:
     def show(self):
