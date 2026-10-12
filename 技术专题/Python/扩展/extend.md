@@ -251,6 +251,12 @@ print(getattr(user, "name", None))
 ```
 如果不提供默认值，属性不存在时会抛出：AttributeError
 
+```python
+a = {"type" : 1}
+print(getattr(a, "type", None))
+```
+如果是一个字典的话，不能使用getattr，它是用来取对象的属性
+
 
 # 三目（三元）表达式
 ```python
@@ -270,7 +276,7 @@ else:
 # raise
 ```python
 raise ValueError("xx") from e
-````
+```
 其中 from e 是为了原始异常。
 
 
@@ -369,4 +375,42 @@ class User:
     def __init__(self, name: str, age: int):
         self.name = name
         self.age = age
+```
+
+# Path.cwd 和 os.getcwd
+```python
+import os
+from pathlib import Path
+
+
+# <class 'pathlib.WindowsPath'>
+# <class 'str'>
+print(type(Path.cwd()))
+print(type(os.getcwd()))
+```
+Path.cwd()：返回 pathlib.Path 对象，适合进行路径拼接和文件操作。
+os.getcwd()：返回字符串，适合与传统 os.path API 一起使用。
+
+```python
+config_path = Path.cwd() / "config" / "app.json"
+config_path = os.path.join(os.getcwd(), "config", "app.json")
+```
+
+# 字符串的定义
+方式1：代码换行，但最终字符串不换行，可以使用括号
+```python
+text = (
+    "这是一段很长的字符串，"
+    "虽然代码分成多行，"
+    "但字符串内容不会换行。"
+)
+
+print(text)
+```
+
+方式2：代码换行，字符串也会换行
+```python
+text = """第一行
+第二行
+第三行"""
 ```

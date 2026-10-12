@@ -14,19 +14,21 @@
 
 ## 推荐阅读顺序
 
-1. Hello-Agents
-2. Learn Claude Code
-https://github.com/WenyuChiou/awesome-agentic-ai-zh/blob/main/stages/01-llm-basics.zh-Hans.md
-3. Claude HowTo
+1. Learn Claude Code
+2. awesome
+   1. 目前只是看到第四节（还没看），剩下的还没看，https://github.com/WenyuChiou/awesome-agentic-ai-zh/blob/main/stages/04-agent-frameworks.zh-Hans.md
+3. Agent-Learning-Hub - https://github.com/datawhalechina/Agent-Learning-Hub
 4. PI???
 
 ## 待学习
 提示词工程
 上下文管理
-记忆模块 -> highsight  openvinkg(字节)   gbrain
-function-calling
+记忆模块 -> Hindsight  openvinkg(字节)   gbrain，好像目前没有比较好的方案
 Agent-Learning-Hub - https://github.com/datawhalechina/Agent-Learning-Hub
 飞书多维表格 + RAG + LangGraph
 
 ### 框架
 LangGraph
+
+
+
