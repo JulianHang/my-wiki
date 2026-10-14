@@ -23,12 +23,20 @@
 ## 待学习
 提示词工程
 上下文管理
-记忆模块 -> Hindsight  openvinkg(字节)   gbrain，好像目前没有比较好的方案
+记忆模块 -> Hindsight  openvinkg(字节)   gbrain，好像目前没有比较好的方案、mem0
+微调
+RAG
+续训
 Agent-Learning-Hub - https://github.com/datawhalechina/Agent-Learning-Hub
 飞书多维表格 + RAG + LangGraph
 
 ### 框架
 LangGraph
+agentscope
+
+
+### 视频
+看相关文章自己学习的话太慢了，还是要结合相关视频去学习才比较快
 
 
 
