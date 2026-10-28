@@ -29,6 +29,7 @@ RAG
 续训
 Agent-Learning-Hub - https://github.com/datawhalechina/Agent-Learning-Hub
 飞书多维表格 + RAG + LangGraph
+fastapi
 
 ### 框架
 LangGraph
@@ -38,5 +39,6 @@ agentscope
 ### 视频
 看相关文章自己学习的话太慢了，还是要结合相关视频去学习才比较快
 
-
+### 技术
+python、
 
