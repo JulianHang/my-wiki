@@ -1,0 +1,246 @@
+body {
+    background-color: #f3f5f7;
+}
+
+.wrapper {
+    width: 1200px;
+    margin: 0 auto;
+}
+
+
+/* header盒子制作开始 */
+.header {
+    height: 100px;
+    background-color: #fff;
+}
+
+
+.logo {
+    width: 195px;
+    height: 41px;
+    /* background-color: purple; */
+    
+}
+
+.logo a {
+    /* 转换成块级元素 */
+    display: block;
+    height: 41px;
+    background: url(../images/logo.png) no-repeat center center;
+    /* 隐藏文字 */
+    font-size: 0;
+}
+
+.header .wrapper {
+    display: flex;
+    padding-top: 29px;
+    
+}
+
+.nav {
+    margin-left: 100px;
+}
+
+.nav ul {
+    display: flex;
+}
+
+.nav li  {
+    margin-right: 20px;
+}
+
+.nav li a {
+    padding: 8px;
+    font-size: 19px;
+    line-height: 35px;
+}
+
+.nav li a:hover {
+    border-bottom: 2px solid #00a4f0;
+}
+
+
+/* 搜索 */
+.search {
+    width: 412px;
+    height: 40px;
+    background-color: #f3f5f7;
+    border-radius: 20px;
+    margin-left: 80px;
+}
+
+.search input {
+    width: 412px;
+    height: 40px;
+    border: 0;
+    /* 背景色透明 */
+    background-color: transparent;
+    padding-left: 20px;
+    /* 去掉点击时的边框 */
+    outline: 0;
+}
+
+.user {
+    margin-left: 32px;
+}
+
+.user img {
+    vertical-align: middle;
+}
+
+.user span {
+    color: #666666
+}
+
+/* header盒子制作结束 */
+
+
+/* banner盒子制作开始 */
+
+.banner {
+    height: 420px;
+    background-color: #0092cb;
+}
+
+.banner .wrapper {
+    height: 420px;
+    background: url(../uploads/banner.png);
+}
+
+.banner .wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+.banner .left {
+    width: 191px;
+    height: 420px;
+    background-color: rgba(0,0,0,.42);
+    padding-top: 3px;
+}
+
+.banner .left li a {
+    display: flex;
+    justify-content: space-between;
+    
+    height: 46px;
+    line-height: 46px;
+    font-size: 16px;
+    color: #fff;
+    padding: 0 20px;
+}
+
+
+.banner .left li a:hover {
+    color: #00a4ff;
+    background-color: rgba(0,0,0,.3)
+}
+
+
+.banner .right {
+    width: 218px;
+    height: 305px;
+    padding-top: 18px;
+    background-color: #209dd5;
+    border-radius: 15px;
+}
+
+.banner .right h3 {
+    height: 31px;
+    color:#fff;
+    padding-left: 14px;
+    font-size: 15px;
+}
+
+.banner .content {
+    height: 257px;
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 14px;
+}
+
+.banner .content dl {
+    margin-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.banner .content dt {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.banner .content dd {
+    font-size: 12px;
+    margin: 8px 0;
+    color: #7d7d7d;
+}
+
+.banner .content dd span {
+    
+    color: #00a4ff;
+}
+
+.banner .content a {
+    display: block;
+    height: 32px;
+    background-color: #00a4ff;
+    border-radius: 16px;
+    text-align: center;
+    line-height: 32px;
+    font-size: 14px;
+    color: #fff;
+}
+
+.banner .content a:hover {
+    background-color: #099ff0;
+    box-shadow: 0 5px 10px rgba(0,0,0,.3)
+}
+
+
+
+/* banner盒子制作结束 */
+
+
+/* 精品推荐制作开始 */
+.recommend {
+    display: flex;
+    justify-content: space-between;
+    height: 60px;
+    background-color: #fff;
+    margin-top: 12px;
+    box-shadow: 0px 1px 2px 0px rgba(211,211,211,0.7);
+    line-height: 60px;
+    padding: 0 20px;
+}
+
+.recommend h3 {
+    color: #00a4ff;
+    font-size: 18px;
+    font-weight: 400;
+
+}
+
+
+
+.recommend ul {
+    display: flex;
+    flex: 1;
+}
+
+.recommend ul li a {
+    border-right: 1px solid #e0e0e0;
+    padding: 0 24px;
+}
+
+.recommend ul li:last-child a {
+    border-right: 0;
+}
+
+
+.recommend .mo {
+    color: #00a4ff;
+}
+
+/* 精品推荐制作结束 */
