@@ -32,7 +32,7 @@ Agent-Learning-Hub - https://github.com/datawhalechina/Agent-Learning-Hub
 fastapi
 
 ### 框架
-LangGraph
+LangGraph（意图识别）、Rasa（传统任务型对话，意图识别）
 agentscope
 
 
