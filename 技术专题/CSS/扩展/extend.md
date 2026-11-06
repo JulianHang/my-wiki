@@ -36,9 +36,70 @@ CSS 中的"通栏"通常指横向铺满整个页面或父容器宽度的区域�
 
 
 ## hegith不会继承父级
-height的默认值事auto，子元素会根据自身内容、盒模型和布局规则计算高度。
-很多块级元素虽然没有继承 width，但默认 width: auto，会自动占满父元素可用宽度，所以看起来像是"继承"了宽度
+height的默认值是auto，子元素会根据自身内容、盒模型和布局规则计算高度。
+很多块级元素虽然没有继承 width，但默认 width: auto，会自动占满父元素可用宽度，所以看起来像是"继承"了宽度。但是子级若设置了高度，父级是默认值，则会撑开父级的盒子。
+
+## 隐藏a标签中的title值
+```html
+<style>
+    a {
+        text-indent: -9999em;
+        overflow: hidden;
+    }
+</style>
+
+
+<style>
+    a {
+        font-size: 0;
+    }
+</style>
+```
+
+
+## 修改planholder样式
+```html
+<style>
+    input::placeholder {
+        color: #ccc
+    }   
+</style>
+```
 
 
 
-补充grid布局基本知识
+
+## 文字溢出使用省略号
+```html
+<style>
+    .box {
+        width: 200px;
+        height: 200px;
+        border:1px solid pink;
+        /* 不允许文字换行，强制文字一行显示 */
+        white-space: nowrap;
+        /* 溢出隐藏 */
+        overflow: hidden;
+        /* 文字溢出用省略号代替 */
+        text-overflow: ellipsis;
+
+    }
+</style>
+
+<div class="box">里面多的文字123要显示省略号哦</div>
+
+```
+
+## flexible.js
+flexible.js是手淘开发出来的一个用来适配移动端的js库。核心原理就是根据不同的视口宽度给网页中html根节点设置不同的font-size。
+
+
+## less文件
+.less 是 Less 样式预处理器文件，本质上是 CSS 的扩展写法，Less 支持变量、嵌套、函数、混合等功能。
+
+## img标签设置宽度100%
+表示图片的宽度设置为父元素内容区域宽度的 100%，也就是尽量和父元素一样宽
+
+
+## object-fit
+用于控制图片或视频在指定宽高的盒子中如何缩放和裁剪
