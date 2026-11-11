@@ -1,0 +1,1 @@
+(()=>{"use strict";const t="001".length>=8,e="002".length>=6;console.log(t,e)})();
