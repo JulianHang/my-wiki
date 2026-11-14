@@ -44,6 +44,8 @@ Array<any>.forEach(
 3. 末尾的 : void
 表示 forEach() 本身没有返回值
 
+4. value is string 是 TypeScript 的类型谓词返回类型，用于告诉编译器：“如果函数返回 true，那么 value 是 string
+
 
 ## new实例化过程
 1. 创建新空对象

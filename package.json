@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "less": "^4.9.1",
+    "less-loader": "^13.1.0"
+  }
+}
