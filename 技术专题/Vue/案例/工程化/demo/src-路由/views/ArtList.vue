@@ -6,14 +6,14 @@
       <div class="item" v-for="item in list" :key="item.id">
         <img :src="item.smallImg" />
         <p>
-          <a href="javascript:;">
-            {{ item.name }}
-          </a>
+         <router-link :to = "'/discover/artlist?id=' + item.id">
+          {{ item.name }}
+         </router-link>
         </p>
       </div>
     </div>
     <div class="conent">
-      <img src="" alt="" />
+      <img :src="getUrl.bigImg" alt="" />
     </div>
   </div>
 </template>
@@ -50,6 +50,18 @@ export default {
       ]
       // current: {}
     }
+  },
+  computed: {
+    getUrl() {
+      if (this.$route.query.id) {
+          return this.list.find(item => item.id = this.$route.query.id)
+      }
+      return ""
+    }
+  },
+  created() {
+    console.log(this.$route.query);
+    
   }
 }
 </script>
@@ -70,5 +82,7 @@ export default {
     text-decoration: none;
     color: #424242;
   }
+
+  
 }
 </style>

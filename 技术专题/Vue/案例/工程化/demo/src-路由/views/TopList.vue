@@ -6,14 +6,14 @@
       <div class="left">
         <ul>
           <li v-for="item in list" :key="item.id">
-            <a href="javascript:;">
+            <router-link :to="`/discover/toplist/${item.name}`">
               {{ item.name }}
-            </a>
+            </router-link>  
           </li>
         </ul>
       </div>
       <div class="content">
-        当前浏览的是<span>新歌榜</span>的歌曲
+        当前浏览的是<span>{{ $route.params.name }}</span>的歌曲
       </div>
     </div>
   </div>

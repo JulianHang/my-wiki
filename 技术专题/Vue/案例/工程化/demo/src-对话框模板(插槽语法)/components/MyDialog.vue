@@ -1,10 +1,13 @@
 <template>
   <div class="dialog">
     <div class="dialog-header">
-      <h3>友情提示</h3>
+      <slot name="title"></slot>
       <span class="close">✖️</span>
     </div>
-    <div class="dialog-content">我是文本内容</div>
+    <div class="dialog-content">
+      <!-- 没有name属性，默认值是default -->
+      <slot username="张三" age="20"></slot>
+    </div>
     <div class="dialog-footer">
       <button>取消</button>
       <button>确认</button>

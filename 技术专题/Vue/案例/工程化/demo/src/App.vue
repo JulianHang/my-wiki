@@ -1,48 +1,41 @@
 <template>
   <div>
-    <div class="footer_wrap">
-      <a href="javascript:;">发现音乐</a>
-      <a href="javascript:;">我的音乐</a>
-      <a href="javascript:;">关注</a>
-    </div>
-    <div class="top">
+    <MyTable :data="list">
+      <template #default="{id}">
+        <button @click="del(id)" >删除</button>
+      </template>
+    </MyTable>
 
-    </div>
+    <MyTable :data="list2">
+      <button>编辑</button>
+    </MyTable>
   </div>
 </template>
 
 <script>
-export default {}
+import MyTable from './components/MyTable.vue'
+export default {
+  methods: {
+    del(id) {
+      this.list = this.list.filter(item => item.id !== id)
+    }
+  },
+  data () {
+    return {
+      list: [
+        { id: 1, name: '张小花', age: 18 },
+        { id: 2, name: '孙大明', age: 19 },
+        { id: 3, name: '刘德忠', age: 17 }
+      ],
+      list2: [
+        { id: 1, name: '赵小云', age: 18 },
+        { id: 2, name: '刘蓓蓓', age: 19 },
+        { id: 3, name: '姜肖泰', age: 17 }
+      ]
+    }
+  },
+  components: {
+    MyTable
+  }
+}
 </script>
-
-<style>
-body {
-  margin: 0;
-  padding: 0;
-}
-
-.footer_wrap {
-  position: relative;
-  left: 0;
-  top: 0;
-  display: flex;
-  width: 100%;
-  text-align: center;
-  background-color: #333;
-  color: #ccc;
-}
-
-.footer_wrap a {
-  flex: 1;
-  text-decoration: none;
-  padding: 20px 0;
-  line-height: 20px;
-  background-color: #333;
-  color: #ccc;
-  border: 1px solid black;
-}
-
-.footer_wrap a:hover {
-  background-color: #555;
-}
-</style>

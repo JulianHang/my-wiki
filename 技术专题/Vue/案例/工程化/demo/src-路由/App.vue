@@ -1,12 +1,16 @@
 <template>
   <div>
     <div class="footer_wrap">
-      <a href="javascript:;">发现音乐</a>
+      <!-- <a href="javascript:;">发现音乐</a>
       <a href="javascript:;">我的音乐</a>
-      <a href="javascript:;">关注</a>
+      <a href="javascript:;">关注</a> -->
+      <router-link to="/discover">发现音乐</router-link>
+      <router-link to="/mymusic">我的音乐</router-link>
+      <router-link to="/follow">关注</router-link>
     </div>
     <div class="top">
-
+      <!-- 在这里展示：发现音乐、我的音乐、关注 -->
+      <router-view></router-view>
     </div>
   </div>
 </template>
@@ -45,4 +49,8 @@ body {
 .footer_wrap a:hover {
   background-color: #555;
 }
+
+a.router-link-active {
+    color: red !important;
+  }
 </style>

@@ -1,14 +1,25 @@
 <template>
   <div>
-    <MyTable></MyTable>
+    <MyTable :data="list">
+      <template #default="{id}">
+        <button @click="del(id)" >删除</button>
+      </template>
+    </MyTable>
 
-    <MyTable></MyTable>
+    <MyTable :data="list2">
+      <button>编辑</button>
+    </MyTable>
   </div>
 </template>
 
 <script>
 import MyTable from './components/MyTable.vue'
 export default {
+  methods: {
+    del(id) {
+      this.list = this.list.filter(item => item.id !== id)
+    }
+  },
   data () {
     return {
       list: [
