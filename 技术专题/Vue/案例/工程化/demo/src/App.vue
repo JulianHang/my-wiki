@@ -1,41 +1,23 @@
 <template>
   <div>
-    <MyTable :data="list">
-      <template #default="{id}">
-        <button @click="del(id)" >删除</button>
-      </template>
-    </MyTable>
-
-    <MyTable :data="list2">
-      <button>编辑</button>
-    </MyTable>
+    <AnyOne></AnyOne>
+    <hr />
+    <AnyTwo></AnyTwo>
   </div>
 </template>
 
 <script>
-import MyTable from './components/MyTable.vue'
+import AnyOne from './components/AnyOne.vue'
+import AnyTwo from './components/AnyTwo.vue'
 export default {
-  methods: {
-    del(id) {
-      this.list = this.list.filter(item => item.id !== id)
-    }
-  },
   data () {
-    return {
-      list: [
-        { id: 1, name: '张小花', age: 18 },
-        { id: 2, name: '孙大明', age: 19 },
-        { id: 3, name: '刘德忠', age: 17 }
-      ],
-      list2: [
-        { id: 1, name: '赵小云', age: 18 },
-        { id: 2, name: '刘蓓蓓', age: 19 },
-        { id: 3, name: '姜肖泰', age: 17 }
-      ]
-    }
+    return {}
   },
   components: {
-    MyTable
+    AnyOne,
+    AnyTwo
   }
 }
 </script>
+
+<style lang="less" scoped></style>
