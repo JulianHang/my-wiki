@@ -50,4 +50,8 @@ this.$nextTick(() => {})
 4. 项目适配
 5. 项目路由配置
 
-##
+## 配置文件
+
+vue.config.js：vue-cli（vue2）脚手架的配置文件，用来修改项目的构建及开发配置
+webpack.config.js：原生 webpack 的打包配置
+vite.config.js：vite 的打包配置
